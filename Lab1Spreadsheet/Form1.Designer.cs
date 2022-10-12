@@ -37,7 +37,7 @@ namespace Lab1Spreadsheet
     private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.addRowBtn = new System.Windows.Forms.Button();
             this.deleteRowBtn = new System.Windows.Forms.Button();
             this.addColBtn = new System.Windows.Forms.Button();
@@ -60,17 +60,24 @@ namespace Lab1Spreadsheet
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.labelForExprInp = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.submitExprBtn = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // dataGridView
+            // dataGridView1
             // 
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(0, 59);
-            this.dataGridView.Name = "dataGridView";
-            this.dataGridView.Size = new System.Drawing.Size(862, 393);
-            this.dataGridView.TabIndex = 0;
+            this.dataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(0, 59);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.Size = new System.Drawing.Size(862, 393);
+            this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridview1_CellClick);
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
             // 
             // addRowBtn
             // 
@@ -94,7 +101,7 @@ namespace Lab1Spreadsheet
             // 
             // addColBtn
             // 
-            this.addColBtn.Location = new System.Drawing.Point(372, 30);
+            this.addColBtn.Location = new System.Drawing.Point(259, 30);
             this.addColBtn.Name = "addColBtn";
             this.addColBtn.Size = new System.Drawing.Size(75, 23);
             this.addColBtn.TabIndex = 3;
@@ -104,7 +111,7 @@ namespace Lab1Spreadsheet
             // 
             // deleteColBtn
             // 
-            this.deleteColBtn.Location = new System.Drawing.Point(453, 30);
+            this.deleteColBtn.Location = new System.Drawing.Point(357, 30);
             this.deleteColBtn.Name = "deleteColBtn";
             this.deleteColBtn.Size = new System.Drawing.Size(113, 23);
             this.deleteColBtn.TabIndex = 4;
@@ -113,10 +120,11 @@ namespace Lab1Spreadsheet
             // 
             // expressionTextBox
             // 
-            this.expressionTextBox.Location = new System.Drawing.Point(678, 33);
+            this.expressionTextBox.Location = new System.Drawing.Point(585, 33);
             this.expressionTextBox.Name = "expressionTextBox";
             this.expressionTextBox.Size = new System.Drawing.Size(171, 20);
             this.expressionTextBox.TabIndex = 5;
+            this.expressionTextBox.TextChanged += new System.EventHandler(this.expressionTextBox_TextChanged);
             // 
             // menuStrip1
             // 
@@ -242,31 +250,75 @@ namespace Lab1Spreadsheet
             // labelForExprInp
             // 
             this.labelForExprInp.AutoSize = true;
-            this.labelForExprInp.Location = new System.Drawing.Point(611, 35);
+            this.labelForExprInp.Location = new System.Drawing.Point(476, 36);
             this.labelForExprInp.Name = "labelForExprInp";
             this.labelForExprInp.Size = new System.Drawing.Size(61, 13);
             this.labelForExprInp.TabIndex = 7;
             this.labelForExprInp.Text = "Expression:";
             this.labelForExprInp.Click += new System.EventHandler(this.label1_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(786, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "getExp";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(705, 0);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "GetId";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(624, 0);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 10;
+            this.button3.Text = "TEST";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            // 
+            // submitExprBtn
+            // 
+            this.submitExprBtn.Location = new System.Drawing.Point(759, 30);
+            this.submitExprBtn.Name = "submitExprBtn";
+            this.submitExprBtn.Size = new System.Drawing.Size(75, 23);
+            this.submitExprBtn.TabIndex = 11;
+            this.submitExprBtn.Text = "Submit";
+            this.submitExprBtn.UseVisualStyleBackColor = true;
+            this.submitExprBtn.Click += new System.EventHandler(this.submitExprBtn_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 450);
+            this.Controls.Add(this.submitExprBtn);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.labelForExprInp);
             this.Controls.Add(this.expressionTextBox);
             this.Controls.Add(this.deleteColBtn);
             this.Controls.Add(this.addColBtn);
             this.Controls.Add(this.deleteRowBtn);
             this.Controls.Add(this.addRowBtn);
-            this.Controls.Add(this.dataGridView);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -276,7 +328,7 @@ namespace Lab1Spreadsheet
 
         #endregion
 
-        private System.Windows.Forms.DataGridView dataGridView;
+        private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Button addRowBtn;
         private System.Windows.Forms.Button deleteRowBtn;
         private System.Windows.Forms.Button addColBtn;
@@ -299,6 +351,10 @@ namespace Lab1Spreadsheet
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label labelForExprInp;
+        private Button button1;
+        private Button button2;
+        private Button button3;
+        private Button submitExprBtn;
     }
 }
 

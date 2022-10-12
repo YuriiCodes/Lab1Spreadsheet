@@ -19,12 +19,13 @@ namespace Lab1Spreadsheet
         {
             this.name = "";
             this.val = "";
-            this.exp = "AMOGUS";
+            this.exp = "TEST_EXP ";
         }
 
         public string Name
         {
             get { return name; }
+            set { name = value; }
         }
 
         public string Value
