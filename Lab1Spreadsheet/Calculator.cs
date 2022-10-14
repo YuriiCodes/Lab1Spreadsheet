@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace Lab1Spreadsheet
             lexer.AddErrorListener(new ThrowExceptionErrorListener());
 
             var tokens = new CommonTokenStream(lexer);
+
+            Debug.WriteLine("TOKENS:");
+            Debug.WriteLine(tokens.GetText());
             var parser = new LabCalculatorParser(tokens);
 
             var tree = parser.compileUnit();

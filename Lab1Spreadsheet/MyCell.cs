@@ -14,7 +14,7 @@ namespace Lab1Spreadsheet
         private string val;
         private string exp;
         private double valDouble;
-        private List<string> dependencies = new List<string>();
+        private List<string> dependentOn = new List<string>();
 
         public MyCell()
         {
@@ -51,8 +51,8 @@ namespace Lab1Spreadsheet
 
         public List<string> Dependencies
         { 
-            get { return dependencies; } 
-            set { dependencies = value; }
+            get { return dependentOn; } 
+            set { dependentOn = value; }
         }
 
     }

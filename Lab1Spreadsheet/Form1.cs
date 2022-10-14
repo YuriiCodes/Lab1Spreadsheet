@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Net.Mime.MediaTypeNames;
@@ -17,6 +19,9 @@ namespace Lab1Spreadsheet
     {
         private string rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private string cols = "1234567890";
+
+        // When formula for C1 is A1 + B1, ralyOn will be like ralayOn["C1"] = ["A1", "B1"]. We will need this info for further re-rendering cells.
+        private Dictionary<string, List<string>> relayOn = new Dictionary<string, List<string>>();
 
         int currRow, currCol;
 
@@ -110,7 +115,7 @@ namespace Lab1Spreadsheet
             currRow = dgv.CurrentCell.RowIndex;
 
             currCellId = convertColAndRowToCellID(currCol, currRow);
-            
+
             // When the current cell is in the row/col that was later added by user, it is not placed into dict by default, so we put it there first.
             if (!dictOfCellsViaId.ContainsKey(currCellId))
             {
@@ -122,7 +127,7 @@ namespace Lab1Spreadsheet
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
             txt.Text = currentCellExp;
-            
+
             /*
             double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
             if (currentCellExp != "")
@@ -130,7 +135,7 @@ namespace Lab1Spreadsheet
                 dgv.CurrentCell.Value = valueToGiveToCell;
             }
           */
-           
+
 
 
             //MessageBox.Show(currentCellExp, "Expression", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -152,19 +157,19 @@ namespace Lab1Spreadsheet
                     MyCell tmp = new MyCell();
                     string tmp_name = convertColAndRowToCellID(col, row);
                     tmp.Name = tmp_name;
-               
+
                     dictOfCellsViaId.Add(tmp_name, tmp);
 
-                   // MessageBox.Show(tmp_name, "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // MessageBox.Show(tmp_name, "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 MyCell cell = new MyCell();
-              
+
 
                 vColumn.CellTemplate = cell;
 
-               vColumn.HeaderText = convertColIndexToChar(col);
-               vColumn.Name = convertColIndexToChar(col);
+                vColumn.HeaderText = convertColIndexToChar(col);
+                vColumn.Name = convertColIndexToChar(col);
 
                 dataGridView1.Columns.Add(vColumn);
             }
@@ -182,7 +187,7 @@ namespace Lab1Spreadsheet
             for (int i = 0; i < dataGridView.RowCount; i++)
             {
                 // Set row name
-                dataGridView.Rows[i].HeaderCell.Value = (i+1).ToString();
+                dataGridView.Rows[i].HeaderCell.Value = (i + 1).ToString();
             }
         }
 
@@ -211,10 +216,10 @@ namespace Lab1Spreadsheet
             CreateDataGrid(8, 8);
 
             SetRowNum(dataGridView1);
-          
 
 
-    }
+
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -238,7 +243,7 @@ namespace Lab1Spreadsheet
 
         private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-          
+
         }
 
 
@@ -266,7 +271,7 @@ namespace Lab1Spreadsheet
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            MessageBox.Show(Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString(), "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+            MessageBox.Show(Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString(), "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
 
@@ -275,6 +280,41 @@ namespace Lab1Spreadsheet
 
         }
 
+        private List<string> getCellsValueIsDependentOn(string formula)
+        {
+            List<string> res = new List<string>();
+
+            // use this if you don't want to include regex comments
+            //Regex rxCell = new Regex(@"(?<![$])\b(?<col>[A-Z]+)(?<row>\d+)\b");
+
+            // regex comments in this style requires RegexOptions.IgnorePatternWhitespace
+            string rxCellPattern = @"(?<![$])       # match if prefix is absent: $ symbol (prevents matching $A1 type of cells)
+                                            # (if all you have is $A$1 type of references, and not $A1 types, this negative look-behind isn't needed)
+                            \b              # word boundary (prevents matching Excel functions with a similar pattern to a cell)
+                            (?<col>[A-Z]+)  # named capture group, match uppercase letter at least once
+                                            # (change to [A-Za-z] if you have lowercase cells)
+                            (?<row>\d+)     # named capture group, match a number at least once
+                            \b              # word boundary
+                            ";
+            Regex rxCell = new Regex(rxCellPattern, RegexOptions.IgnorePatternWhitespace);
+
+            if (rxCell.IsMatch(formula))
+            {
+                //Debug.WriteLine("Formula: {0}", formula);
+                foreach (Match cell in rxCell.Matches(formula))
+                {
+                    //Debug.WriteLine("Cell: {0}, Col: {1}", cell.Value, cell.Groups["col"].Value);
+                    res.Add(cell.Value);
+                }
+            }
+            else
+            {
+                //Debug.WriteLine("Not a match: {0}", formula);
+            }
+            return res;
+        }
+
+        // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
         private void submitExprBtn_Click(object sender, EventArgs e)
         {
             if (currCellId == "")
@@ -285,14 +325,54 @@ namespace Lab1Spreadsheet
 
             // Set expression and clear textBox
             dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
+
+
+            // A list of cells that current Cell is dependent on. eg. {"A1", "G4", "L5"}
+            List<string> newRelayOn = getCellsValueIsDependentOn(expressionTextBox.Text);
+
+
+            List<string> alreadyExistingRelayOn = new List<string>();
+            // Add realyOn key is there are no keys, if there already is an array by this key, check if keys are not the same. If they aren't -add
+
+            //There already is this key - just check each element of out and append element if they are different
+            if (relayOn.TryGetValue(currCellId, out alreadyExistingRelayOn))
+            {
+                foreach (string cell in newRelayOn)
+                {
+                    if (!alreadyExistingRelayOn.Contains(cell))
+                    {
+                        relayOn[currCellId].Add(cell);
+                    }
+                }
+            }
+            else
+            {
+                  relayOn.Add(currCellId, newRelayOn);
+            }
+
+            if (newRelayOn.Count == 0)
+            {
+                Debug.WriteLine("NO DEPENDENCIES");
+            }
+            else
+            {
+                Debug.WriteLine("dependent ");
+                foreach (string cell in newRelayOn)
+                {
+                    Debug.WriteLine("CELL DEPENDENT ON:");
+                    Debug.WriteLine(cell); 
+                }
+            }
             dictOfCellsViaId[currCellId].ValueDouble = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId);
 
 
-            Debug.WriteLine("CurrentCellID: {0}, value: {1}", currCellId, dictOfCellsViaId[currCellId].ValueDouble);
-            Debug.WriteLine(dataGridView1.CurrentCell.ToString());
+            //Debug.WriteLine("CurrentCellID: {0}, value: {1}", currCellId, dictOfCellsViaId[currCellId].ValueDouble);
+            //Debug.WriteLine(dataGridView1.CurrentCell.ToString());
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
             labelForExprInp.Text = "Expression for " + currCellId;
+
+           
 
             double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
 

@@ -36,8 +36,6 @@ namespace Lab1Spreadsheet
         public override double VisitIdentifierExpr(LabCalculatorParser.IdentifierExprContext context)
         {
             var result = context.GetText();
-            double value;
-
             MyCell cell;
             //видобути значення змінної з таблиці
             if (cells.TryGetValue(result.ToString(), out cell))
