@@ -13,13 +13,15 @@ namespace Lab1Spreadsheet
         private string name;
         private string val;
         private string exp;
+        private double valDouble;
         private List<string> dependencies = new List<string>();
 
         public MyCell()
         {
             this.name = "";
             this.val = "";
-            this.exp = "TEST_EXP ";
+            this.valDouble = 0.0;
+            this.exp = "";
         }
 
         public string Name
@@ -32,6 +34,12 @@ namespace Lab1Spreadsheet
         {
             get { return val; }
             set { val = value; }
+        }
+
+        public double ValueDouble
+        {
+            get { return valDouble; }
+            set { valDouble = value; }
         }
 
         public string Exp

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
@@ -101,21 +102,36 @@ namespace Lab1Spreadsheet
             return ((char)(index + 65)).ToString();
         }
 
-        public void showCurrentCellExpt(DataGridView dgv, TextBox txt){
-            int currentCellCol = dgv.CurrentCell.ColumnIndex;
-            int currentCellRow = dgv.CurrentCell.RowIndex;
+        // This function is called when user clicks on cell.
+        public void showCurrentCellExpt(DataGridView dgv, TextBox txt) {
+            Debug.WriteLine("CLicked on Cell");
 
-            string currentCellName = convertColAndRowToCellID(currentCellCol, currentCellRow);
-            currCellId = currentCellName;
+            currCol = dgv.CurrentCell.ColumnIndex;
+            currRow = dgv.CurrentCell.RowIndex;
+
+            currCellId = convertColAndRowToCellID(currCol, currRow);
+            
             // When the current cell is in the row/col that was later added by user, it is not placed into dict by default, so we put it there first.
-            if (!dictOfCellsViaId.ContainsKey(currentCellName))
+            if (!dictOfCellsViaId.ContainsKey(currCellId))
             {
                 MyCell newCell = new MyCell();
-                dictOfCellsViaId.Add(currentCellName, newCell);
+                dictOfCellsViaId.Add(currCellId, newCell);
             }
-            string currentCellExp = dictOfCellsViaId[currentCellName].Exp;
             labelForExprInp.Text = "Expression for " + currCellId;
+
+
+            string currentCellExp = dictOfCellsViaId[currCellId].Exp;
             txt.Text = currentCellExp;
+            
+            /*
+            double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
+            if (currentCellExp != "")
+            {
+                dgv.CurrentCell.Value = valueToGiveToCell;
+            }
+          */
+           
+
 
             //MessageBox.Show(currentCellExp, "Expression", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -170,20 +186,6 @@ namespace Lab1Spreadsheet
             }
         }
 
-        private void dataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            try
-            {
-                Console.WriteLine("BEGINNING");
-                currRow = dataGridView1.CurrentCell.RowIndex;
-                currCol = dataGridView1.CurrentCell.ColumnIndex;
-
-                string cell_n = (char)(currCol + 65) + (currRow + 1).ToString();
-                dataGridView1[currCol, currRow].Value = dictOfCellsViaId[cell_n].Exp;
-                expressionTextBox.Text = dictOfCellsViaId[cell_n].Exp.ToString();
-            }
-            catch { }
-        }
 
         private void dataGridView_CellEndEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
@@ -248,7 +250,6 @@ namespace Lab1Spreadsheet
 
         }
 
-        // TODO: BIND ON CELL  CLICK, INSTEAD OF BUTTONS
         private void dataGridview1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (!validateIfCurrentCellPresent(dataGridView1)) return;
@@ -256,7 +257,6 @@ namespace Lab1Spreadsheet
             showCurrentCellExpt(dataGridView1, expressionTextBox);
         }
 
-        // TODO: REFACTOR THIS TO REMOVE MAGIC BUTTON ANTIPATTERN.
         private void button2_Click_1(object sender, EventArgs e)
         {
             if (!validateIfCurrentCellPresent(dataGridView1)) return;
@@ -266,7 +266,7 @@ namespace Lab1Spreadsheet
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            MessageBox.Show(Calculator.Evaluate(expressionTextBox.Text).ToString(), "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+            MessageBox.Show(Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString(), "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error); 
         }
 
 
@@ -284,8 +284,24 @@ namespace Lab1Spreadsheet
             }
 
             // Set expression and clear textBox
-            dictOfCellsViaId[currCellId].Exp =  expressionTextBox.Text;
-            expressionTextBox.Text = "";
+            dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
+            dictOfCellsViaId[currCellId].ValueDouble = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId);
+
+
+            Debug.WriteLine("CurrentCellID: {0}, value: {1}", currCellId, dictOfCellsViaId[currCellId].ValueDouble);
+            Debug.WriteLine(dataGridView1.CurrentCell.ToString());
+
+            string currentCellExp = dictOfCellsViaId[currCellId].Exp;
+            labelForExprInp.Text = "Expression for " + currCellId;
+
+            double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
+
+            if (currentCellExp != "")
+            {
+                dataGridView1.CurrentCell.Value = valueToGiveToCell;
+            }
+
+            //expressionTextBox.Text = "";
         }
 
         private void label1_Click(object sender, EventArgs e)

@@ -13,11 +13,12 @@ namespace Lab1Spreadsheet
     {
         //таблиця ідентифікаторів (тут для прикладу)
         //в лабораторній роботі заміните на свою!!!!
-        Dictionary<string, double> tableIdentifier = new Dictionary<string, double>()
+        public LabCalculatorVisitor(Dictionary<string, MyCell> cells)
         {
-            {"A1", 1 },
-            {"A2", 2 }
-        };
+            this.cells = cells;
+        }
+        private Dictionary<string, MyCell> cells;
+
         public override double VisitCompileUnit(LabCalculatorParser.CompileUnitContext context)
         {
             return Visit(context.expression());
@@ -26,6 +27,7 @@ namespace Lab1Spreadsheet
         {
             var result = double.Parse(context.GetText());
             Debug.WriteLine(result);
+
             return result;
         }
 
@@ -35,10 +37,12 @@ namespace Lab1Spreadsheet
         {
             var result = context.GetText();
             double value;
+
+            MyCell cell;
             //видобути значення змінної з таблиці
-            if (tableIdentifier.TryGetValue(result.ToString(), out value))
+            if (cells.TryGetValue(result.ToString(), out cell))
             {
-                return value;
+                return cell.ValueDouble;
             }
             else
             {
