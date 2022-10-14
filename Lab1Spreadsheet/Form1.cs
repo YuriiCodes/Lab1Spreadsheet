@@ -314,6 +314,20 @@ namespace Lab1Spreadsheet
             return res;
         }
 
+        private void reRenderCell(string cellId)
+        {
+            Debug.WriteLine("RERENDERING " +  cellId);
+
+            string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
+             //TODO: add re-render.
+            /*
+            double valueToGiveToCell = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
+            if (currentCellExp != "")
+            {
+                dataGridView1.CurrentCell.Value = valueToGiveToCell;
+            }*/
+        }
+
         // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
         private void submitExprBtn_Click(object sender, EventArgs e)
         {
@@ -323,11 +337,20 @@ namespace Lab1Spreadsheet
                 return;
             }
 
-            // Set expression and clear textBox
             dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
 
-
-            // A list of cells that current Cell is dependent on. eg. {"A1", "G4", "L5"}
+            foreach (KeyValuePair<string, List<string>> entry in relayOn)
+            {
+                foreach (string cellId in entry.Value)
+                {
+                    // we are editing a cell, that other cell relays on => we have to re-render this cell
+                    if (cellId == currCellId)
+                    {
+                        reRenderCell(entry.Key);
+                    }
+                }
+            }
+           
             List<string> newRelayOn = getCellsValueIsDependentOn(expressionTextBox.Text);
 
 
@@ -373,15 +396,12 @@ namespace Lab1Spreadsheet
             labelForExprInp.Text = "Expression for " + currCellId;
 
            
-
+            // TODO: Move this piece to re-render function.
             double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
-
             if (currentCellExp != "")
             {
                 dataGridView1.CurrentCell.Value = valueToGiveToCell;
             }
-
-            //expressionTextBox.Text = "";
         }
 
         private void label1_Click(object sender, EventArgs e)
