@@ -107,9 +107,26 @@ namespace Lab1Spreadsheet
             return ((char)(index + 65)).ToString();
         }
 
+        private  int getCellRowFromCellId(string cellId)
+        {
+            int startIndex = cellId.IndexOfAny("0123456789".ToCharArray());
+            int row = Int32.Parse(cellId.Substring(startIndex)) - 1;
+            return row;
+        }
+
+        private static int getCellColFromCellId(string cellId)
+        {
+            int startIndex = cellId.IndexOfAny("0123456789".ToCharArray());
+            string column = cellId.Substring(0, startIndex);
+
+            int res = Convert.ToChar(column) - 'A';
+            return res;
+        }
+
+
         // This function is called when user clicks on cell.
         public void showCurrentCellExpt(DataGridView dgv, TextBox txt) {
-            Debug.WriteLine("CLicked on Cell");
+            Debug.WriteLine("Clicked on Cell");
 
             currCol = dgv.CurrentCell.ColumnIndex;
             currRow = dgv.CurrentCell.RowIndex;
@@ -120,25 +137,15 @@ namespace Lab1Spreadsheet
             if (!dictOfCellsViaId.ContainsKey(currCellId))
             {
                 MyCell newCell = new MyCell();
+                newCell.IsTouched = true;
                 dictOfCellsViaId.Add(currCellId, newCell);
             }
             labelForExprInp.Text = "Expression for " + currCellId;
 
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
+            dictOfCellsViaId[currCellId].IsTouched = true;
             txt.Text = currentCellExp;
-
-            /*
-            double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
-            if (currentCellExp != "")
-            {
-                dgv.CurrentCell.Value = valueToGiveToCell;
-            }
-          */
-
-
-
-            //MessageBox.Show(currentCellExp, "Expression", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private string convertColAndRowToCellID(int col, int row)
@@ -249,9 +256,7 @@ namespace Lab1Spreadsheet
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            if (!validateIfCurrentCellPresent(dataGridView1)) return;
-
-            showCurrentCellExpt(dataGridView1, expressionTextBox);
+            MessageBox.Show(dataGridView1.CurrentCell.ToString());
 
         }
 
@@ -316,16 +321,30 @@ namespace Lab1Spreadsheet
 
         private void reRenderCell(string cellId)
         {
-            Debug.WriteLine("RERENDERING " +  cellId);
+            Debug.WriteLine("RERENDERING " + cellId);
 
-            string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
-             //TODO: add re-render.
-            /*
-            double valueToGiveToCell = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
-            if (currentCellExp != "")
+
+            if (dictOfCellsViaId[cellId].IsTouched)
             {
-                dataGridView1.CurrentCell.Value = valueToGiveToCell;
-            }*/
+                string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
+
+
+
+                //1: Re-calculate value based on expression
+                double new_val = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
+
+                //2. Update dict of cells values
+                dictOfCellsViaId[cellId].Value = Convert.ToString(new_val);
+                dictOfCellsViaId[cellId].ValueDouble = new_val;
+
+                //3. Create functions to get cell and row from cellId
+                int row_of_cell_to_be_rerendered = getCellRowFromCellId(cellId);
+                int col_of_cell_to_be_rerendered = getCellColFromCellId(cellId);
+                //4. Update cell view
+
+                dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = new_val;
+            }
+            
         }
 
         // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
@@ -339,20 +358,8 @@ namespace Lab1Spreadsheet
 
             dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
 
-            foreach (KeyValuePair<string, List<string>> entry in relayOn)
-            {
-                foreach (string cellId in entry.Value)
-                {
-                    // we are editing a cell, that other cell relays on => we have to re-render this cell
-                    if (cellId == currCellId)
-                    {
-                        reRenderCell(entry.Key);
-                    }
-                }
-            }
            
             List<string> newRelayOn = getCellsValueIsDependentOn(expressionTextBox.Text);
-
 
             List<string> alreadyExistingRelayOn = new List<string>();
             // Add realyOn key is there are no keys, if there already is an array by this key, check if keys are not the same. If they aren't -add
@@ -373,6 +380,7 @@ namespace Lab1Spreadsheet
                   relayOn.Add(currCellId, newRelayOn);
             }
 
+            // Check dependencies
             if (newRelayOn.Count == 0)
             {
                 Debug.WriteLine("NO DEPENDENCIES");
@@ -387,10 +395,7 @@ namespace Lab1Spreadsheet
                 }
             }
             dictOfCellsViaId[currCellId].ValueDouble = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId);
-
-
-            //Debug.WriteLine("CurrentCellID: {0}, value: {1}", currCellId, dictOfCellsViaId[currCellId].ValueDouble);
-            //Debug.WriteLine(dataGridView1.CurrentCell.ToString());
+            dictOfCellsViaId[currCellId].Value = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString();
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
             labelForExprInp.Text = "Expression for " + currCellId;
@@ -402,6 +407,24 @@ namespace Lab1Spreadsheet
             {
                 dataGridView1.CurrentCell.Value = valueToGiveToCell;
             }
+
+            foreach (KeyValuePair<string, List<string>> entry in relayOn)
+            {
+                foreach (string cellId in entry.Value)
+                {
+                    // we are editing a cell, that other cell relays on => we have to re-render this cell
+                    if (cellId == currCellId)
+                    {
+                        reRenderCell(entry.Key);
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, MyCell> entry in dictOfCellsViaId)
+            {
+                reRenderCell(entry.Key);
+            }
+
         }
 
         private void label1_Click(object sender, EventArgs e)
