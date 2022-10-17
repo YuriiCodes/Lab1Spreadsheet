@@ -14,8 +14,7 @@ namespace Lab1Spreadsheet
         private string val;
         private string exp;
         private double valDouble;
-        private List<string> dependentOn = new List<string>();
-        private bool isTouched;
+        public List<MyCell> dependentOn  = new List<MyCell>();
 
         public MyCell()
         {
@@ -23,18 +22,12 @@ namespace Lab1Spreadsheet
             this.val = "";
             this.valDouble = 0.0;
             this.exp = "";
-            this.isTouched = false;
         }
 
         public string Name
         {
             get { return name; }
             set { name = value; }
-        }
-        public bool IsTouched
-        {
-            get { return isTouched; }
-            set { isTouched = value; }
         }
 
         public string Value
@@ -54,12 +47,6 @@ namespace Lab1Spreadsheet
             get { return exp; }
             set { exp = value; }
 
-        }
-
-        public List<string> Dependencies
-        { 
-            get { return dependentOn; } 
-            set { dependentOn = value; }
         }
 
     }

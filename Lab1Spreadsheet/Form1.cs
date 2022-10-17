@@ -3,20 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.OleDb;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Lab1Spreadsheet
 {
     public partial class MainForm : Form
     {
+
         private string rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private string cols = "1234567890";
 
@@ -78,7 +82,6 @@ namespace Lab1Spreadsheet
                 MyCell newCell = new MyCell();
                 newCell.Value = "0";
                 newCell.Exp = "0";
-                newCell.Dependencies.Add("");
                 try
                 {
                     dictOfCellsViaId.Add(cell_name, newCell);
@@ -107,7 +110,7 @@ namespace Lab1Spreadsheet
             return ((char)(index + 65)).ToString();
         }
 
-        private  int getCellRowFromCellId(string cellId)
+        private int getCellRowFromCellId(string cellId)
         {
             int startIndex = cellId.IndexOfAny("0123456789".ToCharArray());
             int row = Int32.Parse(cellId.Substring(startIndex)) - 1;
@@ -137,14 +140,12 @@ namespace Lab1Spreadsheet
             if (!dictOfCellsViaId.ContainsKey(currCellId))
             {
                 MyCell newCell = new MyCell();
-                newCell.IsTouched = true;
                 dictOfCellsViaId.Add(currCellId, newCell);
             }
             labelForExprInp.Text = "Expression for " + currCellId;
 
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
-            dictOfCellsViaId[currCellId].IsTouched = true;
             txt.Text = currentCellExp;
         }
 
@@ -199,24 +200,7 @@ namespace Lab1Spreadsheet
         }
 
 
-        private void dataGridView_CellEndEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            try
-            {
-                Console.WriteLine("BEGINNING");
-                currRow = dataGridView1.CurrentCell.RowIndex;
-                currCol = dataGridView1.CurrentCell.ColumnIndex;
 
-                string cell_n = (char)(currCol + 65) + (currRow + 1).ToString();
-                dataGridView1[currCol, currRow].Value = dictOfCellsViaId[cell_n].Exp;
-                expressionTextBox.Text = "clicked";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
         public MainForm()
         {
             InitializeComponent();
@@ -287,6 +271,8 @@ namespace Lab1Spreadsheet
 
         private List<string> getCellsValueIsDependentOn(string formula)
         {
+
+            
             List<string> res = new List<string>();
             // regex comments in this style requires RegexOptions.IgnorePatternWhitespace
             string rxCellPattern = @"(?<![$])       # match if prefix is absent: $ symbol (prevents matching $A1 type of cells)
@@ -300,46 +286,167 @@ namespace Lab1Spreadsheet
 
 
             Regex rxCell = new Regex(rxCellPattern, RegexOptions.IgnorePatternWhitespace);
-            if (rxCell.IsMatch(formula))
+
+
+            if (rxCell.IsMatch(formula)) //B1^2
             {
-                //Debug.WriteLine("Formula: {0}", formula);
+
                 foreach (Match cell in rxCell.Matches(formula))
                 {
+                    // break if there is a recursion in the formula
+                    if (cell.Value == currCellId) break;
+
+                   
                     res.Add(cell.Value);
+  
                     string dep = dictOfCellsViaId[cell.Value].Exp;
-                    res.AddRange(getCellsValueIsDependentOn(dep));
+
+                    
+                    
+
+                    foreach (string newDep in getCellsValueIsDependentOn(dep))
+                    {   
+                        res.Add(newDep);
+                    }
                 }
             }
             return res;
         }
+       
 
         private void reRenderCell(string cellId)
         {
             Debug.WriteLine("RERENDERING " + cellId);
+            string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
 
+            //1: Re-calculate value based on expression
+            double new_val = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
 
-            if (dictOfCellsViaId[cellId].IsTouched)
-            {
-                string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
+            //2. Update dict of cells values
+            dictOfCellsViaId[cellId].Value = Convert.ToString(new_val);
+            dictOfCellsViaId[cellId].ValueDouble = new_val;
 
+            //3. Create functions to get cell and row from cellId
+            int row_of_cell_to_be_rerendered = getCellRowFromCellId(cellId);
+            int col_of_cell_to_be_rerendered = getCellColFromCellId(cellId);
+            //4. Update cell view
 
-
-                //1: Re-calculate value based on expression
-                double new_val = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
-
-                //2. Update dict of cells values
-                dictOfCellsViaId[cellId].Value = Convert.ToString(new_val);
-                dictOfCellsViaId[cellId].ValueDouble = new_val;
-
-                //3. Create functions to get cell and row from cellId
-                int row_of_cell_to_be_rerendered = getCellRowFromCellId(cellId);
-                int col_of_cell_to_be_rerendered = getCellColFromCellId(cellId);
-                //4. Update cell view
-
-                dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = new_val;
-            }
-            
+            dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = new_val;
         }
+        // a helper function to deal with recursion
+        private void validateRecursion()
+        {
+            MessageBox.Show("Recursion detected! State of table will be reset to the one before you added the recursion", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // clear expression and value of cell
+            dictOfCellsViaId[currCellId].Exp = "";
+            dictOfCellsViaId[currCellId].Value = "";
+            dictOfCellsViaId[currCellId].ValueDouble = 0;
+            // clear cell view
+            dataGridView1[getCellColFromCellId(currCellId), getCellRowFromCellId(currCellId)].Value = "";
+
+            // clear text box
+            expressionTextBox.Text = "";
+            return;
+        }
+        private void updateDependencyDict(string expr)
+        {
+            List<string> nowRelayOn = getCellsValueIsDependentOn(expr);
+            
+            List<string> tmp = new List<string>();
+            if (relayOn.TryGetValue(currCellId, out tmp))
+            {
+                foreach (string cell in nowRelayOn)
+                {
+
+                    if (!tmp.Contains(cell))
+                    {
+                        // check for recursion, if there is recursion created - show error
+                        if (relayOn.ContainsKey(cell) && relayOn[cell].Contains(currCellId))
+                        {
+                            validateRecursion();
+                        }
+                        else
+                        {
+                            relayOn[currCellId].Add(cell);
+                            dictOfCellsViaId[currCellId].dependentOn.Add(dictOfCellsViaId[cell]);
+                        }
+                       
+                    }
+                }
+            }
+            else
+            {
+                // check for recursion, if there is recursion created - show error
+                foreach (string cell in nowRelayOn)
+                {
+                    if (relayOn.ContainsKey(cell) && relayOn[cell].Contains(currCellId))
+                    {
+                        validateRecursion();
+                    }
+                }
+                relayOn.Add(currCellId, nowRelayOn);
+                foreach (string i in nowRelayOn)
+                {
+                    // check for recursion, if there is recursion created - show error
+                    if (relayOn.ContainsKey(i) && relayOn[i].Contains(currCellId))
+                    {
+                        validateRecursion(); 
+                    } else
+                    {
+                        dictOfCellsViaId[currCellId].dependentOn.Add(dictOfCellsViaId[i]);
+                    }
+                    
+                }
+            }
+
+            // Check dependencies
+            if (nowRelayOn.Count == 0)
+            {
+                Debug.WriteLine("NO DEPENDENCIES");
+            }
+            else
+            {
+                Debug.WriteLine("dependent ");
+                foreach (string cell in nowRelayOn)
+                {
+                    Debug.WriteLine("CELL DEPENDENT ON:");
+                    Debug.WriteLine(cell);
+                }
+            }
+
+        }
+
+        /*
+                 * Each MyCell has a public field dependentOn - a list of cells that this function is dependent on. Code below check for recusrion recursively, returning true if there is recursion, and false  if not: */
+        private bool isRecursive(MyCell currentCell, MyCell initialCell)
+        {
+            {
+                if (currentCell.dependentOn.Count == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    foreach (MyCell cell in currentCell.dependentOn)
+                    {
+                        if (cell == initialCell)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (isRecursive(cell, initialCell))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+
 
         // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
         private void submitExprBtn_Click(object sender, EventArgs e)
@@ -350,57 +457,28 @@ namespace Lab1Spreadsheet
                 return;
             }
 
-            dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
-
            
-            List<string> newRelayOn = getCellsValueIsDependentOn(expressionTextBox.Text);
+          
 
-            List<string> alreadyExistingRelayOn = new List<string>();
-            // Add realyOn key is there are no keys, if there already is an array by this key, check if keys are not the same. If they aren't -add
+           dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
 
-            //There already is this key - just check each element of out and append element if they are different
-            if (relayOn.TryGetValue(currCellId, out alreadyExistingRelayOn))
+
+
+
+            if (isRecursive(dictOfCellsViaId[currCellId], dictOfCellsViaId[currCellId]))
             {
-                foreach (string cell in newRelayOn)
-                {
-                    if (!alreadyExistingRelayOn.Contains(cell))
-                    {
-                        relayOn[currCellId].Add(cell);
-                    }
-                }
-            }
-            else
-            {
-                  relayOn.Add(currCellId, newRelayOn);
+                MessageBox.Show("Циклічна залежність!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            // Check dependencies
-            if (newRelayOn.Count == 0)
-            {
-                Debug.WriteLine("NO DEPENDENCIES");
-            }
-            else
-            {
-                Debug.WriteLine("dependent ");
-                foreach (string cell in newRelayOn)
-                {
-                    Debug.WriteLine("CELL DEPENDENT ON:");
-                    Debug.WriteLine(cell); 
-                }
-            }
-            dictOfCellsViaId[currCellId].ValueDouble = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId);
-            dictOfCellsViaId[currCellId].Value = Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString();
 
-            string currentCellExp = dictOfCellsViaId[currCellId].Exp;
+
+            updateDependencyDict(expressionTextBox.Text);
+          
+           
             labelForExprInp.Text = "Expression for " + currCellId;
 
-           
-            // TODO: Move this piece to re-render function.
-            double valueToGiveToCell = Calculator.Evaluate(currentCellExp, dictOfCellsViaId);
-            if (currentCellExp != "")
-            {
-                dataGridView1.CurrentCell.Value = valueToGiveToCell;
-            }
+            reRenderCell(currCellId);
 
             foreach (KeyValuePair<string, List<string>> entry in relayOn)
             {
@@ -417,6 +495,120 @@ namespace Lab1Spreadsheet
 
         private void label1_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var window = MessageBox.Show(
+           "Close the window?",
+           "Are you sure?",
+           MessageBoxButtons.YesNo);
+
+
+            e.Cancel = (window == DialogResult.No);
+        }
+        private void saveTableToXml(string path)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+            using (XmlWriter writer = XmlWriter.Create(path, settings))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Table");
+                foreach (KeyValuePair<string, MyCell> entry in dictOfCellsViaId)
+                {
+                    writer.WriteStartElement("Cell");
+                    writer.WriteElementString("Id", entry.Key);
+                    writer.WriteElementString("Value", entry.Value.Value);
+                    writer.WriteElementString("ValueDouble", entry.Value.ValueDouble.ToString());
+                    writer.WriteElementString("Expression", entry.Value.Exp);
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+            }
+        }
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            // save file in xml format
+            saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            saveFileDialog1.Title = "Save table File";
+            saveFileDialog1.ShowDialog();
+
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog1.FileName != "")
+            {
+                // save table to xml file
+                saveTableToXml(saveFileDialog1.FileName);
+            } else
+            {
+                {
+                    MessageBox.Show("Ви не вибрали файл!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+
+
+        }
+
+        private void loadTableFromXml(string path)
+        {
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(path);
+            XmlNodeList nodes = doc.SelectNodes("/Table/Cell");
+            foreach (XmlNode node in nodes)
+            {
+                string id = node.SelectSingleNode("Id").InnerText;
+                string value = node.SelectSingleNode("Value").InnerText;
+                //parse valueDOuble
+                double valueDouble = node.SelectSingleNode("ValueDouble").InnerText == "" ? 0 : double.Parse(node.SelectSingleNode("ValueDouble").InnerText);
+                string expression = node.SelectSingleNode("Expression").InnerText;
+
+                //check if dictOfCellsViaId[id] is valid cell,  if yes - add values, if no - create and append values.
+                if (dictOfCellsViaId.ContainsKey(id))
+                {
+                    dictOfCellsViaId[id].Value = value;
+                    dictOfCellsViaId[id].ValueDouble = valueDouble;
+                    dictOfCellsViaId[id].Exp = expression;
+                }
+                else
+                {
+                    MyCell tmp = new MyCell();
+                    tmp.Value = value;
+                    tmp.ValueDouble = valueDouble;
+                    tmp.Exp = expression;
+                    dictOfCellsViaId.Add(id, tmp);
+                }
+               
+                reRenderCell(id);
+            }
+            
+
+        }
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // load the table from xml file
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog1.Title = "Open table File";
+            openFileDialog1.ShowDialog();
+
+            if (openFileDialog1.FileName != "")
+            {
+                // load table from xml file
+                loadTableFromXml(openFileDialog1.FileName);
+            }
+            else
+            {
+                {
+                    MessageBox.Show("Ви не вибрали файл!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
 
         }
 
