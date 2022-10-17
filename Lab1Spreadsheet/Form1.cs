@@ -288,10 +288,6 @@ namespace Lab1Spreadsheet
         private List<string> getCellsValueIsDependentOn(string formula)
         {
             List<string> res = new List<string>();
-
-            // use this if you don't want to include regex comments
-            //Regex rxCell = new Regex(@"(?<![$])\b(?<col>[A-Z]+)(?<row>\d+)\b");
-
             // regex comments in this style requires RegexOptions.IgnorePatternWhitespace
             string rxCellPattern = @"(?<![$])       # match if prefix is absent: $ symbol (prevents matching $A1 type of cells)
                                             # (if all you have is $A$1 type of references, and not $A1 types, this negative look-behind isn't needed)
@@ -301,20 +297,18 @@ namespace Lab1Spreadsheet
                             (?<row>\d+)     # named capture group, match a number at least once
                             \b              # word boundary
                             ";
-            Regex rxCell = new Regex(rxCellPattern, RegexOptions.IgnorePatternWhitespace);
 
+
+            Regex rxCell = new Regex(rxCellPattern, RegexOptions.IgnorePatternWhitespace);
             if (rxCell.IsMatch(formula))
             {
                 //Debug.WriteLine("Formula: {0}", formula);
                 foreach (Match cell in rxCell.Matches(formula))
                 {
-                    //Debug.WriteLine("Cell: {0}, Col: {1}", cell.Value, cell.Groups["col"].Value);
                     res.Add(cell.Value);
+                    string dep = dictOfCellsViaId[cell.Value].Exp;
+                    res.AddRange(getCellsValueIsDependentOn(dep));
                 }
-            }
-            else
-            {
-                //Debug.WriteLine("Not a match: {0}", formula);
             }
             return res;
         }
@@ -419,12 +413,6 @@ namespace Lab1Spreadsheet
                     }
                 }
             }
-
-            foreach (KeyValuePair<string, MyCell> entry in dictOfCellsViaId)
-            {
-                reRenderCell(entry.Key);
-            }
-
         }
 
         private void label1_Click(object sender, EventArgs e)
