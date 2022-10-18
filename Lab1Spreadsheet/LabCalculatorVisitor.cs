@@ -1,4 +1,5 @@
-﻿using LabCalculator;
+﻿using Antlr4.Runtime.Misc;
+using LabCalculator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -91,6 +92,46 @@ namespace Lab1Spreadsheet
                 Debug.WriteLine("{0} / {1}", left, right);
                 return left / right;
             }
+        }
+
+        public override double VisitModDivExpr(LabCalculatorParser.ModDivExprContext context)
+        {
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            return context.operatorToken.Type == LabCalculatorLexer.MOD
+                ? left % right
+                : (int)left / (int)right;
+        }
+
+        public override double VisitMminExpr(LabCalculatorParser.MminExprContext context)
+        {
+            double minValue = Double.PositiveInfinity;
+
+            foreach(var child in context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>())
+            {
+                double childValue = this.Visit(child);
+                if (childValue < minValue)
+                {
+                    minValue = childValue;
+                }
+            }
+            return minValue;
+        }
+
+        public override double VisitMmaxExpr(LabCalculatorParser.MmaxExprContext context)
+        {
+            double maxValue = Double.NegativeInfinity;
+
+            foreach (var child in context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>())
+            {
+                double childValue = this.Visit(child);
+                if (childValue > maxValue)
+                {
+                    maxValue = childValue;
+                }
+            }
+            return maxValue;
         }
 
         private double WalkLeft(LabCalculatorParser.ExpressionContext context)
