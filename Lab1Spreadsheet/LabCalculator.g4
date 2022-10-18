@@ -12,6 +12,7 @@ expression :
 	| expression operatorToken=(ADD | SUBTRACT) expression #AdditiveExpr
 
 	| expression operatorToken=(EQUAL | NOTEQUAL | LESSTHAN | LESSTHANEQUAL | GREATERTHAN | GREATERTHANEQUAL) expression #RelationalExpr
+	| expression operatorToken=(AND | OR) expression #LogicalExpr
 	
 	| operatorToken=(MOD | DIV) LPAREN expression ',' expression RPAREN #ModDivExpr
 	| MMAX LPAREN paramlist=arglist RPAREN #MmaxExpr
@@ -51,6 +52,8 @@ LESSTHANEQUAL : '<=';
 GREATERTHAN : '>';
 GREATERTHANEQUAL : '>=';
 
+AND : '&&';
+OR : '||';
 
 MOD: 'mod';
 DIV: 'div';

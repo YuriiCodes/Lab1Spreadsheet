@@ -163,6 +163,42 @@ namespace Lab1Spreadsheet
             }
         }
 
+        public override double VisitLogicalExpr(LabCalculatorParser.LogicalExprContext context)
+        {
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            if (context.operatorToken.Type == LabCalculatorLexer.AND)
+            {
+                Debug.WriteLine("{0} && {1}", left, right);
+                if (left != 0 && right != 0)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if (context.operatorToken.Type == LabCalculatorLexer.OR)
+            {
+                Debug.WriteLine("{0} || {1}", left, right);
+                if (left != 0 || right != 0)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
         public override double VisitMultiplicativeExpr(LabCalculatorParser.MultiplicativeExprContext context)
         {
             var left = WalkLeft(context);
