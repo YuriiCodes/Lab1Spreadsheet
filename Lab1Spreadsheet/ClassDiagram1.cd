@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Lab1Spreadsheet.Calculator">
+    <Position X="6.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Calculator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lab1Spreadsheet.MyCell">
+    <Position X="0.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAIAAEAQAAAAAAAAAAAQAAAAEAQAAAAAgAAAAAgA=</HashCode>
+      <FileName>MyCell.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lab1Spreadsheet.Program">
+    <Position X="1.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lab1Spreadsheet.MainForm" Collapsed="true">
+    <Position X="4.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>B4ACABkAACAAAAAIAACCggAGAAgAAAAAAgAABAAAAQA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lab1Spreadsheet.LabCalculatorVisitor" Collapsed="true">
+    <Position X="6.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AigADAAAABAAACAAAAAAgAACAAQAAAIAIAIJIAAQAAA=</HashCode>
+      <FileName>LabCalculatorVisitor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lab1Spreadsheet.ThrowExceptionErrorListener" Collapsed="true">
+    <Position X="2.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ThrowExceptionErrorListener.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
