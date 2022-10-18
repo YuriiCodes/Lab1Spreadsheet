@@ -70,7 +70,6 @@ namespace Lab1Spreadsheet
             this.dataGridView1.Size = new System.Drawing.Size(862, 393);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridview1_CellClick);
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
             // 
             // addRowBtn
             // 
@@ -119,7 +118,6 @@ namespace Lab1Spreadsheet
             this.expressionTextBox.Name = "expressionTextBox";
             this.expressionTextBox.Size = new System.Drawing.Size(171, 20);
             this.expressionTextBox.TabIndex = 5;
-            this.expressionTextBox.TextChanged += new System.EventHandler(this.expressionTextBox_TextChanged);
             // 
             // menuStrip1
             // 
@@ -209,7 +207,6 @@ namespace Lab1Spreadsheet
             this.labelForExprInp.Size = new System.Drawing.Size(55, 13);
             this.labelForExprInp.TabIndex = 7;
             this.labelForExprInp.Text = "Формула";
-            this.labelForExprInp.Click += new System.EventHandler(this.label1_Click);
             // 
             // submitExprBtn
             // 
@@ -239,7 +236,6 @@ namespace Lab1Spreadsheet
             this.Name = "MainForm";
             this.Text = "Not Excel by Yurii Pidlisnyi";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

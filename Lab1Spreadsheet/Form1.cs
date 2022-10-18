@@ -16,29 +16,21 @@ namespace Lab1Spreadsheet
         // When formula for C1 is A1 + B1, ralyOn will be like ralayOn["C1"] = ["A1", "B1"]. We will need this info for further re-rendering cells.
         private Dictionary<string, List<string>> relayOn = new Dictionary<string, List<string>>();
 
+        // indexes of current cell(the cell that user clicked on0
         int currRow, currCol;
 
         // We need this variable to keep a reference to the cell whoose expression we will edit.
         string currCellId = "";
 
+        // Here we will store MyCell cells by their ids, e.g. dictOfCellsViaId["A1"]  will give us a MyCell with id "A1".
         public Dictionary<string, MyCell> dictOfCellsViaId = new Dictionary<string, MyCell>();
 
-        private void showCurrentCellId(DataGridView dgv)
-        {
-            int currentCellCol = dgv.CurrentCell.ColumnIndex;
-            int currentCellRow = dgv.CurrentCell.RowIndex;
-
-            string currentCellName = convertColAndRowToCellID(currentCellCol, currentCellRow);
-            MessageBox.Show(currentCellName, "ID", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
+        // We need this method to initialize a row of cells when we add a row.
          private void initializeLastRow(DataGridView dgv)
         {
             // iterate over last row of dgv:
             foreach (DataGridViewCell cell in dgv.Rows[dgv.Rows.Count - 1].Cells)
             {
-
-
                 string newCellId = convertColAndRowToCellID(cell.ColumnIndex, cell.RowIndex);
                 // check if newCellId  is not already in the dictionary:
                 if (!dictOfCellsViaId.ContainsKey(newCellId))
@@ -58,6 +50,7 @@ namespace Lab1Spreadsheet
             initializeLastRow(dgv);
         }
 
+        // We need this method when user clicks on add column button
         private void addColumn(DataGridView dgv)
         {
             DataGridViewColumn column = new DataGridViewColumn();
@@ -104,6 +97,7 @@ namespace Lab1Spreadsheet
             initializeLastRow(dgv);
         }
 
+        // This method checks if user clicked on any cell.
         public bool validateIfCurrentCellPresent(DataGridView dgv)
         {
             if (dgv.CurrentCell == null)
@@ -135,7 +129,6 @@ namespace Lab1Spreadsheet
             return res;
         }
 
-
         // This function is called when user clicks on cell.
         public void showCurrentCellExpt(DataGridView dgv, TextBox txt) {
             Debug.WriteLine("Clicked on Cell");
@@ -158,6 +151,8 @@ namespace Lab1Spreadsheet
             txt.Text = currentCellExp;
         }
 
+
+        // convert column and row indexes to cell id, e.g. (0, 0) -> "A1"
         private string convertColAndRowToCellID(int col, int row)
         {
             return convertColIndexToChar(col) + Convert.ToString(row + 1);
@@ -214,6 +209,7 @@ namespace Lab1Spreadsheet
             }
         }
 
+        // This method renders headlines for rows.
         private void SetRowNum(DataGridView dataGridView)
         {
             for (int i = 0; i < dataGridView.RowCount; i++)
@@ -223,19 +219,11 @@ namespace Lab1Spreadsheet
             }
         }
 
-
-
         public MainForm()
         {
             InitializeComponent();
             CreateDataGrid(8, 8);
             SetRowNum(dataGridView1);
-            
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -263,7 +251,6 @@ namespace Lab1Spreadsheet
             {
                 // already no rows - show user pop up:
                 MessageBox.Show("В таблиці немає рядків!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
         }
 
@@ -271,19 +258,7 @@ namespace Lab1Spreadsheet
         {
             addColumn(dataGridView1);
         }
-
-        private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            MessageBox.Show(dataGridView1.CurrentCell.ToString());
-
-        }
-
+   
         private void dataGridview1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (!validateIfCurrentCellPresent(dataGridView1)) return;
@@ -291,30 +266,13 @@ namespace Lab1Spreadsheet
             showCurrentCellExpt(dataGridView1, expressionTextBox);
         }
 
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            if (!validateIfCurrentCellPresent(dataGridView1)) return;
-
-            showCurrentCellId(dataGridView1);
-        }
-
-        private void button3_Click_1(object sender, EventArgs e)
-        {
-            MessageBox.Show(Calculator.Evaluate(expressionTextBox.Text, dictOfCellsViaId).ToString(), "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-
-        private void expressionTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private List<string> getCellsValueIsDependentOn(string formula)
         {
 
             
             List<string> res = new List<string>();
-            // regex comments in this style requires RegexOptions.IgnorePatternWhitespace
+        
+            // A regex pattern to match cell Id
             string rxCellPattern = @"(?<![$])       # match if prefix is absent: $ symbol (prevents matching $A1 type of cells)
                                             # (if all you have is $A$1 type of references, and not $A1 types, this negative look-behind isn't needed)
                             \b              # word boundary (prevents matching Excel functions with a similar pattern to a cell)
@@ -324,9 +282,7 @@ namespace Lab1Spreadsheet
                             \b              # word boundary
                             ";
 
-
             Regex rxCell = new Regex(rxCellPattern, RegexOptions.IgnorePatternWhitespace);
-
 
             if (rxCell.IsMatch(formula)) //B1^2
             {
@@ -335,14 +291,10 @@ namespace Lab1Spreadsheet
                 {
                     // break if there is a recursion in the formula
                     if (cell.Value == currCellId) break;
-
                    
                     res.Add(cell.Value);
   
                     string dep = dictOfCellsViaId[cell.Value].Exp;
-
-                    
-                    
 
                     foreach (string newDep in getCellsValueIsDependentOn(dep))
                     {   
@@ -422,6 +374,7 @@ namespace Lab1Spreadsheet
                         }
                         else
                         {
+                            // no recursion, we are safe to add new dependency
                             relayOn[currCellId].Add(cell);
                             dictOfCellsViaId[currCellId].dependentOn.Add(dictOfCellsViaId[cell]);
                         }
@@ -471,9 +424,7 @@ namespace Lab1Spreadsheet
 
         }
 
-
-        // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
-        private void submitExprBtn_Click(object sender, EventArgs e)
+        private void submitExpression()
         {
             if (currCellId == "")
             {
@@ -481,15 +432,10 @@ namespace Lab1Spreadsheet
                 return;
             }
 
-           
-          
-
-           dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
-
+            dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
 
             updateDependencyDict(expressionTextBox.Text);
-          
-           
+
             labelForExprInp.Text = "Формула для " + currCellId;
 
             reRenderCell(currCellId);
@@ -506,10 +452,9 @@ namespace Lab1Spreadsheet
                 }
             }
         }
-
-        private void label1_Click(object sender, EventArgs e)
+        private void submitExprBtn_Click(object sender, EventArgs e)
         {
-
+            submitExpression();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -519,9 +464,9 @@ namespace Lab1Spreadsheet
            "Ви певні?",
            MessageBoxButtons.YesNo);
 
-
             e.Cancel = (window == DialogResult.No);
         }
+
         private void saveTableToXml(string path)
         {
             XmlWriterSettings settings = new XmlWriterSettings();
@@ -570,9 +515,6 @@ namespace Lab1Spreadsheet
                     MessageBox.Show("Ви не вибрали файл!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
-
-
         }
 
         private void loadTableFromXml(string path)
@@ -618,10 +560,8 @@ namespace Lab1Spreadsheet
                     tmp.Exp = expression;
                     dictOfCellsViaId.Add(id, tmp);
                 }
-               
                 reRenderCell(id);
             }
-            
 
         }
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -645,7 +585,6 @@ namespace Lab1Spreadsheet
             }
 
         }
-
         private void updateDependenciesAfterDeletion(string cellId)
         {
             foreach (KeyValuePair<string, List<string>> entry in relayOn)
@@ -678,19 +617,8 @@ namespace Lab1Spreadsheet
             MessageBox.Show("Вас вітає міні ексель! Для введення формули значення в клітинку, просто нажміть на клітинку, введіть число в форму вводу у верхньому правому кутку, на нажміть <Ввести>. Для обчислення формул виконайте ті ж самі дії, тільки замість чиел введіть формулу, наприклад A1^2 + 1.", "Про програму", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void deleteColBtn_Click(object sender, EventArgs e)
+        private void deleteLastRow()
         {
-            // delete last row from dictOfCellsViaId:
-            int lastCol = dataGridView1.ColumnCount - 1;
-            
-            for (int i = 0; i < dataGridView1.RowCount; i++)
-            {
-                string cellId = convertColAndRowToCellID(lastCol, i);
-
-                Debug.WriteLine(cellId);
-                updateDependenciesAfterDeletion(cellId);
-            }
-
             // delete last row from data grid view:
             try
             {
@@ -700,8 +628,25 @@ namespace Lab1Spreadsheet
             {
                 // already no columns - show user pop up:
                 MessageBox.Show("В таблиці немає Колонок!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
+        }
+        private void updateDependenciesAfterColDeletion(int lastCol)
+        {
+            for (int i = 0; i < dataGridView1.RowCount; i++)
+            {
+                string cellId = convertColAndRowToCellID(lastCol, i);
+
+                Debug.WriteLine(cellId);
+                updateDependenciesAfterDeletion(cellId);
+            }
+        }
+        private void deleteColBtn_Click(object sender, EventArgs e)
+        {
+            // delete last row from dictOfCellsViaId:
+            int lastCol = dataGridView1.ColumnCount - 1;
+
+            updateDependenciesAfterColDeletion(lastCol);
+            deleteLastRow();
         }
     }
 }
