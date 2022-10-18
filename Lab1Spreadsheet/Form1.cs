@@ -31,11 +31,31 @@ namespace Lab1Spreadsheet
             string currentCellName = convertColAndRowToCellID(currentCellCol, currentCellRow);
             MessageBox.Show(currentCellName, "ID", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+         private void initializeLastRow(DataGridView dgv)
+        {
+            // iterate over last row of dgv:
+            foreach (DataGridViewCell cell in dgv.Rows[dgv.Rows.Count - 1].Cells)
+            {
+
+
+                string newCellId = convertColAndRowToCellID(cell.ColumnIndex, cell.RowIndex);
+                // check if newCellId  is not already in the dictionary:
+                if (!dictOfCellsViaId.ContainsKey(newCellId))
+                {
+                    // add newCellId to the dictionary:
+                    dictOfCellsViaId.Add(newCellId, new MyCell());
+
+                }
+            }
+        }
         private void addRow(DataGridView dgv)
         {
-            DataGridViewRow row = new DataGridViewRow();
-            dgv.Rows.Add(row);
+            DataGridViewRow newRow = new DataGridViewRow();
+            dgv.Rows.Add(newRow);
             SetRowNum(dgv);
+
+            initializeLastRow(dgv);
         }
 
         private void addColumn(DataGridView dgv)
@@ -70,7 +90,7 @@ namespace Lab1Spreadsheet
                 string cell_name = (char)k + (i + 1).ToString();
                 MyCell newCell = new MyCell();
                 newCell.Value = "0";
-                newCell.Exp = "0";
+                newCell.Exp = "";
                 try
                 {
                     dictOfCellsViaId.Add(cell_name, newCell);
@@ -81,7 +101,7 @@ namespace Lab1Spreadsheet
                 }
 
             }
-
+            initializeLastRow(dgv);
         }
 
         public bool validateIfCurrentCellPresent(DataGridView dgv)
@@ -143,6 +163,18 @@ namespace Lab1Spreadsheet
             return convertColIndexToChar(col) + Convert.ToString(row + 1);
         }
 
+        private void setColHeader(DataGridView dgv)
+        {
+            {
+                for (int i = 0; i < dgv.ColumnCount; i++)
+                {
+                    int k = i + 65;
+                    string cell_name = Convert.ToString((char)k);
+                    dgv.Columns[i].Name = cell_name;
+                    dgv.Columns[i].HeaderText = cell_name;
+                }
+            }
+        }
         private void CreateDataGrid(int rows, int cols)
         {
             for (int col = 0; col < cols; col++)
@@ -152,13 +184,15 @@ namespace Lab1Spreadsheet
                 // We add 1, because indexes start with 1, e.g. A1, and not A0.
                 for (int row = 0; row < rows+1; row++)
                 {
-                    MyCell tmp = new MyCell();
-                    string tmp_name = convertColAndRowToCellID(col, row);
-                    tmp.Name = tmp_name;
 
-                    dictOfCellsViaId.Add(tmp_name, tmp);
-
-                     //MessageBox.Show(tmp_name, "Колонка", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // check if dictOfCellsViaId don't already contain the cell:
+                    string cellId = convertColAndRowToCellID(col, row);
+                    if (!dictOfCellsViaId.ContainsKey(cellId))
+                    {
+                        MyCell tmp = new MyCell();
+                        tmp.Name = cellId;
+                        dictOfCellsViaId.Add(cellId, tmp);
+                    }
                 }
 
                 MyCell cell = new MyCell();
@@ -195,12 +229,8 @@ namespace Lab1Spreadsheet
         {
             InitializeComponent();
             CreateDataGrid(8, 8);
-            this.dataGridView1.AllowUserToAddRows = false;
-
             SetRowNum(dataGridView1);
-
-
-
+            
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -310,19 +340,34 @@ namespace Lab1Spreadsheet
             Debug.WriteLine("RERENDERING " + cellId);
             string exprressionOfCellToRerender = dictOfCellsViaId[cellId].Exp;
 
-            //1: Re-calculate value based on expression
+            
+            
+            // Re-calculate value based on expression
             double new_val = Calculator.Evaluate(exprressionOfCellToRerender, dictOfCellsViaId);
 
-            //2. Update dict of cells values
-            dictOfCellsViaId[cellId].Value = Convert.ToString(new_val);
-            dictOfCellsViaId[cellId].ValueDouble = new_val;
-
-            //3. Create functions to get cell and row from cellId
+            // Functions to get cell and row from cellId
             int row_of_cell_to_be_rerendered = getCellRowFromCellId(cellId);
             int col_of_cell_to_be_rerendered = getCellColFromCellId(cellId);
-            //4. Update cell view
 
-            dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = new_val;
+            // if exprressionOfCellToRerender is just a "", set value to "":
+            if (exprressionOfCellToRerender == "")
+            {
+
+                dictOfCellsViaId[cellId].Value = "";
+                // Update cell view
+                dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = "";
+            }
+            else
+            {
+                // Update dict of cells values
+                dictOfCellsViaId[cellId].Value = Convert.ToString(new_val);
+                dictOfCellsViaId[cellId].ValueDouble = new_val;
+                // Update cell view
+                dataGridView1[col_of_cell_to_be_rerendered, row_of_cell_to_be_rerendered].Value = new_val;
+            }
+            
+          
+            
         }
         // a helper function to deal with recursion
         private void validateRecursion()
@@ -407,37 +452,6 @@ namespace Lab1Spreadsheet
 
         }
 
-        /*
-                 * Each MyCell has a public field dependentOn - a list of cells that this function is dependent on. Code below check for recusrion recursively, returning true if there is recursion, and false  if not: */
-        private bool isRecursive(MyCell currentCell, MyCell initialCell)
-        {
-            {
-                if (currentCell.dependentOn.Count == 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    foreach (MyCell cell in currentCell.dependentOn)
-                    {
-                        if (cell == initialCell)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (isRecursive(cell, initialCell))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-
-
 
         // TODO: REMOVE MAGIC BUTTON ANTIPATTERN FROM HERE
         private void submitExprBtn_Click(object sender, EventArgs e)
@@ -452,16 +466,6 @@ namespace Lab1Spreadsheet
           
 
            dictOfCellsViaId[currCellId].Exp = expressionTextBox.Text;
-
-
-
-
-            if (isRecursive(dictOfCellsViaId[currCellId], dictOfCellsViaId[currCellId]))
-            {
-                MessageBox.Show("Циклічна залежність!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
 
 
             updateDependencyDict(expressionTextBox.Text);
@@ -508,6 +512,12 @@ namespace Lab1Spreadsheet
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Table");
+
+                // write number of rows in dataGridView1 to xml document:
+                writer.WriteElementString("Rows", (dataGridView1.RowCount  - 1).ToString());
+
+                // write number of columns in dataGridView1 to xml document:
+                writer.WriteElementString("Cols", dataGridView1.ColumnCount.ToString());
                 foreach (KeyValuePair<string, MyCell> entry in dictOfCellsViaId)
                 {
                     writer.WriteStartElement("Cell");
@@ -548,9 +558,23 @@ namespace Lab1Spreadsheet
 
         private void loadTableFromXml(string path)
         {
-
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
+
+            // Read /Table/Rows tag
+            XmlNode rowsNode = doc.SelectSingleNode("/Table/Rows");
+            int rows = int.Parse(rowsNode.InnerText);
+
+
+            // Read /Table/Cols tag
+            XmlNode colsNode = doc.SelectSingleNode("/Table/Cols");
+            int cols = int.Parse(colsNode.InnerText);
+
+
+            CreateDataGrid(rows, cols);
+            SetRowNum(dataGridView1);
+            setColHeader(dataGridView1);
+
             XmlNodeList nodes = doc.SelectNodes("/Table/Cell");
             foreach (XmlNode node in nodes)
             {
