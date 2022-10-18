@@ -252,26 +252,8 @@ namespace Lab1Spreadsheet
                 string cellId = convertColAndRowToCellID(i, lastRow);
 
                 Debug.WriteLine(cellId);
-                
-                
-                foreach (KeyValuePair<string, List<string>> entry in relayOn)
-                {
-                    if (entry.Value.Contains(cellId))
-                    {
-                        entry.Value.Remove(cellId);
 
-                        string cellIdToBeUpdated = entry.Key;
-                        dictOfCellsViaId[cellIdToBeUpdated].Value = "0";
-                        dictOfCellsViaId[cellIdToBeUpdated].Exp = "";
-
-                        int col = getCellColFromCellId(cellIdToBeUpdated);
-                        int row = getCellRowFromCellId(cellIdToBeUpdated);
-
-                        expressionTextBox.Text = "";
-                        dataGridView1.Rows[row].Cells[col].Value = "0";
-                    }
-                }
-                dictOfCellsViaId.Remove(cellId);
+                updateDependenciesAfterDeletion(cellId);
             }
 
             // delete last row from data grid view:
@@ -664,6 +646,27 @@ namespace Lab1Spreadsheet
 
         }
 
+        private void updateDependenciesAfterDeletion(string cellId)
+        {
+            foreach (KeyValuePair<string, List<string>> entry in relayOn)
+            {
+                if (entry.Value.Contains(cellId))
+                {
+                    entry.Value.Remove(cellId);
+
+                    string cellIdToBeUpdated = entry.Key;
+                    dictOfCellsViaId[cellIdToBeUpdated].Value = "0";
+                    dictOfCellsViaId[cellIdToBeUpdated].Exp = "";
+
+                    int col = getCellColFromCellId(cellIdToBeUpdated);
+                    int row = getCellRowFromCellId(cellIdToBeUpdated);
+
+                    expressionTextBox.Text = "";
+                    dataGridView1.Rows[row].Cells[col].Value = "0";
+                }
+            }
+            dictOfCellsViaId.Remove(cellId);
+        }
         private void deleteColBtn_Click(object sender, EventArgs e)
         {
             // delete last row from dictOfCellsViaId:
@@ -674,26 +677,7 @@ namespace Lab1Spreadsheet
                 string cellId = convertColAndRowToCellID(lastCol, i);
 
                 Debug.WriteLine(cellId);
-
-
-                foreach (KeyValuePair<string, List<string>> entry in relayOn)
-                {
-                    if (entry.Value.Contains(cellId))
-                    {
-                        entry.Value.Remove(cellId);
-
-                        string cellIdToBeUpdated = entry.Key;
-                        dictOfCellsViaId[cellIdToBeUpdated].Value = "0";
-                        dictOfCellsViaId[cellIdToBeUpdated].Exp = "";
-
-                        int col = getCellColFromCellId(cellIdToBeUpdated);
-                        int row = getCellRowFromCellId(cellIdToBeUpdated);
-
-                        expressionTextBox.Text = "";
-                        dataGridView1.Rows[row].Cells[col].Value = "0";
-                    }
-                }
-                dictOfCellsViaId.Remove(cellId);
+                updateDependenciesAfterDeletion(cellId);
             }
 
             // delete last row from data grid view:
@@ -707,12 +691,6 @@ namespace Lab1Spreadsheet
                 MessageBox.Show("В таблиці немає Колонок!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             }
-        }
-
-        private void saveDGV(string path)
-        {
-            
-            
         }
     }
 }
