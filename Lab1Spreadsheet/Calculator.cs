@@ -9,7 +9,7 @@ using LabCalculator;
 
 namespace Lab1Spreadsheet
 {
-    class Calculator
+    public class Calculator
     {
         public static double Evaluate(string expression, Dictionary<string, MyCell> cells)
         {
