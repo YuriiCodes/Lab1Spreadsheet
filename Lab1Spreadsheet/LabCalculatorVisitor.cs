@@ -257,20 +257,33 @@ namespace Lab1Spreadsheet
         public override double VisitIncDecExpr( LabCalculatorParser.IncDecExprContext context)
         {
             double res = 0;
-            foreach (var child in context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>())
+
+
+            var child = context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>().First();
+            double childValue = this.Visit(child);
+            if (context.operatorToken.Type == LabCalculatorLexer.INC)
             {
-               
-                double childValue = this.Visit(child);
-                if (context.operatorToken.Type == LabCalculatorLexer.INC)
-                {
-                    res = childValue + 1;
-                }
-                else
-                {
-                     res =childValue - 1;
-                }
+                return  childValue + 1;
             }
-            return res;
+            else
+            {
+                return childValue - 1;
+            }
+        }
+
+        public override double VisitLogicalNotExpr(LabCalculatorParser.LogicalNotExprContext context)
+        {
+
+            var child = context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>().First();
+            double childValue = this.Visit(child);
+            if (childValue != 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
         private double WalkLeft(LabCalculatorParser.ExpressionContext context)
         {

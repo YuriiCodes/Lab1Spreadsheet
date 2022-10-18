@@ -19,6 +19,7 @@ expression :
 	| MMIN LPAREN paramlist=arglist RPAREN #MminExpr
 	
 	| operatorToken=(INC | DEC) LPAREN paramlist=singleparam RPAREN #IncDecExpr
+	| NOT LPAREN paramlist=singleparam RPAREN #LogicalNotExpr
 
 	| NUMBER #NumberExpr
 	| IDENTIFIER #IdentifierExpr
@@ -64,5 +65,7 @@ MMIN: 'mmin';
 
 INC: 'inc';
 DEC: 'dec';
+
+NOT: '!';
 
 WS : [ \t\r\n] -> channel(HIDDEN);
