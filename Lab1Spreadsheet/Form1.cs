@@ -667,6 +667,17 @@ namespace Lab1Spreadsheet
             }
             dictOfCellsViaId.Remove(cellId);
         }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Вас вітає міні ексель! Для введення формули значення в клітинку, просто нажміть на клітинку, введіть число в форму вводу у верхньому правому кутку, на нажміть <Ввести>. Для обчислення формул виконайте ті ж самі дії, тільки замість чиел введіть формулу, наприклад A1^2 + 1.", "Про програму", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private void deleteColBtn_Click(object sender, EventArgs e)
         {
             // delete last row from dictOfCellsViaId:
