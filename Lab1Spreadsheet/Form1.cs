@@ -151,7 +151,7 @@ namespace Lab1Spreadsheet
                 MyCell newCell = new MyCell();
                 dictOfCellsViaId.Add(currCellId, newCell);
             }
-            labelForExprInp.Text = "Expression for " + currCellId;
+            labelForExprInp.Text = "Вираз для " + currCellId;
 
 
             string currentCellExp = dictOfCellsViaId[currCellId].Exp;
@@ -391,7 +391,7 @@ namespace Lab1Spreadsheet
         // a helper function to deal with recursion
         private void validateRecursion()
         {
-            MessageBox.Show("Recursion detected! State of table will be reset to the one before you added the recursion", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Знайдена рекурсія! Стан програми повернеться до того, який був до додавання рекурсивної залежності", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             // clear expression and value of cell
             dictOfCellsViaId[currCellId].Exp = "";
             dictOfCellsViaId[currCellId].Value = "";
@@ -490,7 +490,7 @@ namespace Lab1Spreadsheet
             updateDependencyDict(expressionTextBox.Text);
           
            
-            labelForExprInp.Text = "Expression for " + currCellId;
+            labelForExprInp.Text = "Формула для " + currCellId;
 
             reRenderCell(currCellId);
 
@@ -515,8 +515,8 @@ namespace Lab1Spreadsheet
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             var window = MessageBox.Show(
-           "Close the window?",
-           "Are you sure?",
+           "Закрити вікно?",
+           "Ви певні?",
            MessageBoxButtons.YesNo);
 
 
@@ -556,7 +556,7 @@ namespace Lab1Spreadsheet
 
             // save file in xml format
             saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
-            saveFileDialog1.Title = "Save table File";
+            saveFileDialog1.Title = "Зберігти таблицю у файл";
             saveFileDialog1.ShowDialog();
 
             // If the file name is not an empty string open it for saving.
@@ -629,7 +629,7 @@ namespace Lab1Spreadsheet
             // load the table from xml file
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             openFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
-            openFileDialog1.Title = "Open table File";
+            openFileDialog1.Title = "Відкрити таблицю";
             openFileDialog1.ShowDialog();
 
             if (openFileDialog1.FileName != "")

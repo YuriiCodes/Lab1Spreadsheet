@@ -54,9 +54,6 @@ namespace Lab1Spreadsheet
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.labelForExprInp = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
             this.submitExprBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -79,9 +76,9 @@ namespace Lab1Spreadsheet
             // 
             this.addRowBtn.Location = new System.Drawing.Point(12, 30);
             this.addRowBtn.Name = "addRowBtn";
-            this.addRowBtn.Size = new System.Drawing.Size(75, 23);
+            this.addRowBtn.Size = new System.Drawing.Size(91, 23);
             this.addRowBtn.TabIndex = 1;
-            this.addRowBtn.Text = "Add Row";
+            this.addRowBtn.Text = "Додати рядок";
             this.addRowBtn.UseVisualStyleBackColor = true;
             this.addRowBtn.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -89,19 +86,19 @@ namespace Lab1Spreadsheet
             // 
             this.deleteRowBtn.Location = new System.Drawing.Point(109, 30);
             this.deleteRowBtn.Name = "deleteRowBtn";
-            this.deleteRowBtn.Size = new System.Drawing.Size(105, 23);
+            this.deleteRowBtn.Size = new System.Drawing.Size(123, 23);
             this.deleteRowBtn.TabIndex = 2;
-            this.deleteRowBtn.Text = "Delete last Row";
+            this.deleteRowBtn.Text = "Видалити ост. рядок";
             this.deleteRowBtn.UseVisualStyleBackColor = true;
             this.deleteRowBtn.Click += new System.EventHandler(this.button2_Click);
             // 
             // addColBtn
             // 
-            this.addColBtn.Location = new System.Drawing.Point(259, 30);
+            this.addColBtn.Location = new System.Drawing.Point(249, 30);
             this.addColBtn.Name = "addColBtn";
-            this.addColBtn.Size = new System.Drawing.Size(75, 23);
+            this.addColBtn.Size = new System.Drawing.Size(102, 23);
             this.addColBtn.TabIndex = 3;
-            this.addColBtn.Text = "Add Column";
+            this.addColBtn.Text = "Додати колонку";
             this.addColBtn.UseVisualStyleBackColor = true;
             this.addColBtn.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -109,9 +106,10 @@ namespace Lab1Spreadsheet
             // 
             this.deleteColBtn.Location = new System.Drawing.Point(357, 30);
             this.deleteColBtn.Name = "deleteColBtn";
+            this.deleteColBtn.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.deleteColBtn.Size = new System.Drawing.Size(113, 23);
             this.deleteColBtn.TabIndex = 4;
-            this.deleteColBtn.Text = "Delete Column";
+            this.deleteColBtn.Text = "Видалити колонку";
             this.deleteColBtn.UseVisualStyleBackColor = true;
             this.deleteColBtn.Click += new System.EventHandler(this.deleteColBtn_Click);
             // 
@@ -208,40 +206,10 @@ namespace Lab1Spreadsheet
             this.labelForExprInp.AutoSize = true;
             this.labelForExprInp.Location = new System.Drawing.Point(476, 36);
             this.labelForExprInp.Name = "labelForExprInp";
-            this.labelForExprInp.Size = new System.Drawing.Size(61, 13);
+            this.labelForExprInp.Size = new System.Drawing.Size(55, 13);
             this.labelForExprInp.TabIndex = 7;
-            this.labelForExprInp.Text = "Expression:";
+            this.labelForExprInp.Text = "Формула";
             this.labelForExprInp.Click += new System.EventHandler(this.label1_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(786, 0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "getExp";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(705, 0);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "GetId";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(624, 0);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 10;
-            this.button3.Text = "Eval";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // submitExprBtn
             // 
@@ -249,7 +217,7 @@ namespace Lab1Spreadsheet
             this.submitExprBtn.Name = "submitExprBtn";
             this.submitExprBtn.Size = new System.Drawing.Size(75, 23);
             this.submitExprBtn.TabIndex = 11;
-            this.submitExprBtn.Text = "Submit";
+            this.submitExprBtn.Text = "Ввести";
             this.submitExprBtn.UseVisualStyleBackColor = true;
             this.submitExprBtn.Click += new System.EventHandler(this.submitExprBtn_Click);
             // 
@@ -259,9 +227,6 @@ namespace Lab1Spreadsheet
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 450);
             this.Controls.Add(this.submitExprBtn);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.labelForExprInp);
             this.Controls.Add(this.expressionTextBox);
             this.Controls.Add(this.deleteColBtn);
@@ -272,7 +237,7 @@ namespace Lab1Spreadsheet
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Not Excel by Yurii Pidlisnyi";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
@@ -302,9 +267,6 @@ namespace Lab1Spreadsheet
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label labelForExprInp;
-        private Button button1;
-        private Button button2;
-        private Button button3;
         private Button submitExprBtn;
     }
 }
