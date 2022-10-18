@@ -46,7 +46,6 @@ namespace Lab1Spreadsheet
         {
             get { return exp; }
             set { exp = value; }
-
         }
 
     }

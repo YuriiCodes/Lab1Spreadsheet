@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.OleDb;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Lab1Spreadsheet
 {
@@ -22,7 +12,6 @@ namespace Lab1Spreadsheet
     {
 
         private string rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private string cols = "1234567890";
 
         // When formula for C1 is A1 + B1, ralyOn will be like ralayOn["C1"] = ["A1", "B1"]. We will need this info for further re-rendering cells.
         private Dictionary<string, List<string>> relayOn = new Dictionary<string, List<string>>();
@@ -160,7 +149,8 @@ namespace Lab1Spreadsheet
             {
                 DataGridViewColumn vColumn = new DataGridViewColumn();
 
-                for (int row = 0; row < rows; row++)
+                // We add 1, because indexes start with 1, e.g. A1, and not A0.
+                for (int row = 0; row < rows+1; row++)
                 {
                     MyCell tmp = new MyCell();
                     string tmp_name = convertColAndRowToCellID(col, row);
@@ -168,7 +158,7 @@ namespace Lab1Spreadsheet
 
                     dictOfCellsViaId.Add(tmp_name, tmp);
 
-                    // MessageBox.Show(tmp_name, "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                     //MessageBox.Show(tmp_name, "Колонка", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 MyCell cell = new MyCell();
@@ -205,6 +195,7 @@ namespace Lab1Spreadsheet
         {
             InitializeComponent();
             CreateDataGrid(8, 8);
+            this.dataGridView1.AllowUserToAddRows = false;
 
             SetRowNum(dataGridView1);
 
