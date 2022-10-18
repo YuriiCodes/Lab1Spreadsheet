@@ -10,6 +10,8 @@ expression :
 	|expression EXPONENT expression #ExponentialExpr
 	| expression operatorToken=(MULTIPLY | DIVIDE) expression #MultiplicativeExpr
 	| expression operatorToken=(ADD | SUBTRACT) expression #AdditiveExpr
+
+	| expression operatorToken=(EQUAL | NOTEQUAL | LESSTHAN | LESSTHANEQUAL | GREATERTHAN | GREATERTHANEQUAL) expression #RelationalExpr
 	
 	| operatorToken=(MOD | DIV) LPAREN expression ',' expression RPAREN #ModDivExpr
 	| MMAX LPAREN paramlist=arglist RPAREN #MmaxExpr
@@ -41,6 +43,15 @@ SUBTRACT : '-';
 ADD : '+';
 LPAREN : '(';
 RPAREN : ')';
+
+EQUAL : '==';
+NOTEQUAL : '!=';
+LESSTHAN : '<';
+LESSTHANEQUAL : '<=';
+GREATERTHAN : '>';
+GREATERTHANEQUAL : '>=';
+
+
 MOD: 'mod';
 DIV: 'div';
 MMAX: 'mmax';

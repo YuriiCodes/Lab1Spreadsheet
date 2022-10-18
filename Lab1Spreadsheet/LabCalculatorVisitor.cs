@@ -78,6 +78,91 @@ namespace Lab1Spreadsheet
             }
         }
 
+        public override double VisitRelationalExpr( LabCalculatorParser.RelationalExprContext context)
+        {
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            if (context.operatorToken.Type == LabCalculatorLexer.LESSTHAN)
+            {
+                Debug.WriteLine("{0} < {1}", left, right);
+                if (left < right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if(context.operatorToken.Type == LabCalculatorLexer.LESSTHANEQUAL)
+            {
+                Debug.WriteLine("{0} <= {1}", left, right);
+                if (left <= right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if (context.operatorToken.Type == LabCalculatorLexer.GREATERTHAN)
+            {
+                Debug.WriteLine("{0} > {1}", left, right);
+                if (left > right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if (context.operatorToken.Type == LabCalculatorLexer.GREATERTHANEQUAL)
+            {
+                Debug.WriteLine("{0} => {1}", left, right);
+                if (left >= right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            else if (context.operatorToken.Type == LabCalculatorLexer.EQUAL)
+            {
+                Debug.WriteLine("{0} == {1}", left, right);
+                if (left == right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            // a != b
+            else if (context.operatorToken.Type == LabCalculatorLexer.NOTEQUAL)
+            {
+                Debug.WriteLine("{0} != {1}", left, right);
+                if (left != right)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            else
+            {
+                return 0;
+            }
+        }
+
         public override double VisitMultiplicativeExpr(LabCalculatorParser.MultiplicativeExprContext context)
         {
             var left = WalkLeft(context);
