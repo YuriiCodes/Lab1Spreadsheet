@@ -18,6 +18,7 @@ expression :
 	| MMAX LPAREN paramlist=arglist RPAREN #MmaxExpr
 	| MMIN LPAREN paramlist=arglist RPAREN #MminExpr
 	
+	| operatorToken=(INC | DEC) LPAREN paramlist=singleparam RPAREN #IncDecExpr
 
 	| NUMBER #NumberExpr
 	| IDENTIFIER #IdentifierExpr
@@ -25,6 +26,7 @@ expression :
 
 arglist: expression (',' expression)+;
 paramlist: expression (',' expression)+;
+singleparam: expression;
 
 
 /*
@@ -59,5 +61,8 @@ MOD: 'mod';
 DIV: 'div';
 MMAX: 'mmax';
 MMIN: 'mmin';
+
+INC: 'inc';
+DEC: 'dec';
 
 WS : [ \t\r\n] -> channel(HIDDEN);

@@ -254,7 +254,24 @@ namespace Lab1Spreadsheet
             }
             return maxValue;
         }
-
+        public override double VisitIncDecExpr( LabCalculatorParser.IncDecExprContext context)
+        {
+            double res = 0;
+            foreach (var child in context.paramlist.children.OfType<LabCalculatorParser.ExpressionContext>())
+            {
+               
+                double childValue = this.Visit(child);
+                if (context.operatorToken.Type == LabCalculatorLexer.INC)
+                {
+                    res = childValue + 1;
+                }
+                else
+                {
+                     res =childValue - 1;
+                }
+            }
+            return res;
+        }
         private double WalkLeft(LabCalculatorParser.ExpressionContext context)
         {
             return Visit(context.GetRuleContext<LabCalculatorParser.ExpressionContext>(0));
