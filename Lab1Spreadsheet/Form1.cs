@@ -245,7 +245,44 @@ namespace Lab1Spreadsheet
 
         private void button2_Click(object sender, EventArgs e)
         {
+            // delete last row from dictOfCellsViaId:
+            int lastRow = dataGridView1.RowCount - 1;
+            for (int i = 0; i < dataGridView1.ColumnCount; i++)
+            {
+                string cellId = convertColAndRowToCellID(i, lastRow);
 
+                Debug.WriteLine(cellId);
+                
+                
+                foreach (KeyValuePair<string, List<string>> entry in relayOn)
+                {
+                    if (entry.Value.Contains(cellId))
+                    {
+                        entry.Value.Remove(cellId);
+
+                        string cellIdToBeUpdated = entry.Key;
+                        dictOfCellsViaId[cellIdToBeUpdated].Value = "0";
+                        dictOfCellsViaId[cellIdToBeUpdated].Exp = "";
+
+                        int col = getCellColFromCellId(cellIdToBeUpdated);
+                        int row = getCellRowFromCellId(cellIdToBeUpdated);
+
+                        expressionTextBox.Text = "";
+                        dataGridView1.Rows[row].Cells[col].Value = "0";
+                    }
+                }
+                dictOfCellsViaId.Remove(cellId);
+            }
+
+            // delete last row from data grid view:
+            try {
+                dataGridView1.Rows.RemoveAt(dataGridView1.RowCount - 1);
+            } catch
+            {
+                // already no rows - show user pop up:
+                MessageBox.Show("В таблиці немає рядків!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
