@@ -664,6 +664,51 @@ namespace Lab1Spreadsheet
 
         }
 
+        private void deleteColBtn_Click(object sender, EventArgs e)
+        {
+            // delete last row from dictOfCellsViaId:
+            int lastCol = dataGridView1.ColumnCount - 1;
+            
+            for (int i = 0; i < dataGridView1.RowCount; i++)
+            {
+                string cellId = convertColAndRowToCellID(lastCol, i);
+
+                Debug.WriteLine(cellId);
+
+
+                foreach (KeyValuePair<string, List<string>> entry in relayOn)
+                {
+                    if (entry.Value.Contains(cellId))
+                    {
+                        entry.Value.Remove(cellId);
+
+                        string cellIdToBeUpdated = entry.Key;
+                        dictOfCellsViaId[cellIdToBeUpdated].Value = "0";
+                        dictOfCellsViaId[cellIdToBeUpdated].Exp = "";
+
+                        int col = getCellColFromCellId(cellIdToBeUpdated);
+                        int row = getCellRowFromCellId(cellIdToBeUpdated);
+
+                        expressionTextBox.Text = "";
+                        dataGridView1.Rows[row].Cells[col].Value = "0";
+                    }
+                }
+                dictOfCellsViaId.Remove(cellId);
+            }
+
+            // delete last row from data grid view:
+            try
+            {
+                dataGridView1.Columns.RemoveAt(dataGridView1.ColumnCount - 1);
+            }
+            catch
+            {
+                // already no columns - show user pop up:
+                MessageBox.Show("В таблиці немає Колонок!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            }
+        }
+
         private void saveDGV(string path)
         {
             

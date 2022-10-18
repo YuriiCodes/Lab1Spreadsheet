@@ -90,9 +90,9 @@ namespace Lab1Spreadsheet
             // 
             this.deleteRowBtn.Location = new System.Drawing.Point(109, 30);
             this.deleteRowBtn.Name = "deleteRowBtn";
-            this.deleteRowBtn.Size = new System.Drawing.Size(75, 23);
+            this.deleteRowBtn.Size = new System.Drawing.Size(105, 23);
             this.deleteRowBtn.TabIndex = 2;
-            this.deleteRowBtn.Text = "Delete Row";
+            this.deleteRowBtn.Text = "Delete last Row";
             this.deleteRowBtn.UseVisualStyleBackColor = true;
             this.deleteRowBtn.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -114,6 +114,7 @@ namespace Lab1Spreadsheet
             this.deleteColBtn.TabIndex = 4;
             this.deleteColBtn.Text = "Delete Column";
             this.deleteColBtn.UseVisualStyleBackColor = true;
+            this.deleteColBtn.Click += new System.EventHandler(this.deleteColBtn_Click);
             // 
             // expressionTextBox
             // 
