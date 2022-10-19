@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Lab1Spreadsheet
 {
@@ -16,6 +17,8 @@ namespace Lab1Spreadsheet
 
         public void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
+            // Show that cell expression is invalid
+            MessageBox.Show("Не вірно введений вираз  для клітинки! Програма закривається", "Помилка!", MessageBoxButtons.OK);
             throw new ArgumentException("Invalid expression: {0}", msg, e);
         }
     }
